@@ -205,3 +205,39 @@ exports.updateProfile = async (req, res) => {
     }
   };
   
+
+  
+exports.getPublicProfiles = async (req, res) => {
+    try {
+       
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+          }
+      
+      // Find the user based on the provided email
+      const user = await User.findOne({ email: email });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      console.log(user.role)
+      // Check users role
+      if (user.role !='normal' && user.role!='admin') {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+  
+      // Fetch public user profiles where role is 'user'
+      const profiles = await User.find({
+        role: 'normal',
+        isPublic: true
+      }).select('-password'); // Exclude the password field from the result
+  
+      res.json({ profiles });
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+  

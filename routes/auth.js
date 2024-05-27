@@ -10,5 +10,7 @@ router.post('/login', auth.login);
 router.post('/logout', authenticateToken, auth.logout); 
 router.get('/profile', authenticateToken, auth.getProfile);
 router.put('/updateProfile', authenticateToken, auth.updateProfile);
+router.get('/getPublicProfiles', auth.getPublicProfiles);
+
 
 module.exports = router;
