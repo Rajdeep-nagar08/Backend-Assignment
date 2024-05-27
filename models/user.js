@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   bio: { type: String },
   phone: { type: String },
   isPublic: { type: Boolean, default: true },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  role: { type: String, enum: ['normal', 'admin'], default: 'normal' },
   googleId: { type: String },
   facebookId: { type: String },
   twitterId: { type: String },

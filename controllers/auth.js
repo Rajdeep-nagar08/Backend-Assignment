@@ -23,7 +23,7 @@ exports.register = async (req, res) => {
     }
 
     // Set the user's role based on isAdmin
-    const role = isAdmin ? 'admin' : 'user';
+    const role = isAdmin ? 'admin' : 'normal';
 
     const hashedPassword = await hashPassword(password);
     const user = new User({ name, email, password: hashedPassword, photo, bio, phone, isPublic, role });
@@ -105,3 +105,49 @@ exports.logout = async (req, res) => {
     }
   };
   
+
+
+  // Get the profile of the requesting user or all profiles based on role
+exports.getProfile = async (req, res) => {
+    try {
+
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+          }
+      
+
+      // Check if email is valid
+      if (!email.includes('@')) {
+        return res.status(400).json({ message: 'Invalid email address' });
+      }
+  
+      // Find user by email
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+
+  
+      // If the user is an admin, fetch all user profiles
+      if (user.role === 'admin') {
+        const users = await User.find();
+        const usersWithoutPasswords = users.map(user => {
+          const { password, ...userWithoutPassword } = user.toObject();
+          return userWithoutPassword;
+        });
+        res.json({ message: 'All user profiles fetched successfully', users: usersWithoutPasswords });
+      } else {
+        // For normal users, fetch only public profiles
+        const users = await User.find({ isPublic: true });
+        const usersWithoutPasswords = users.map(user => {
+          const { password, ...userWithoutPassword } = user.toObject();
+          return userWithoutPassword;
+        });
+        res.json({ message: 'Public user profiles fetched successfully', users: usersWithoutPasswords });
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+  };
