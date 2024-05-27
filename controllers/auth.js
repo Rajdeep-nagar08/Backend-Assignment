@@ -39,6 +39,12 @@ exports.register = async (req, res) => {
 };
 
 
+function isStrongPassword(password) {
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{":;'?/>.<,])(?=.*\w).{8,}$/;
+    return passwordRegex.test(password);
+  }
+  
+
 exports.login = async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -73,9 +79,29 @@ exports.login = async (req, res) => {
   };
 
   
-function isStrongPassword(password) {
-    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{":;'?/>.<,])(?=.*\w).{8,}$/;
-    return passwordRegex.test(password);
-  }
-  
+exports.logout = async (req, res) => {
+    try {
+      const { email } = req.body;
 
+      // Check if email is provided
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+      }
+  
+      // Check if email is valid
+      if (!email.includes('@')) {
+        return res.status(400).json({ message: 'Invalid email address' });
+      }
+  
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(401).json({ message: 'User not found' });
+      }
+      const token = generateToken({ userId: user._id, role: user.role });
+      // clear the JWT token from the client-side means remove from localStorage
+      res.json({ message: 'User logged out successfully' });
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  };
+  
