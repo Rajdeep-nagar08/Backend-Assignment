@@ -151,3 +151,57 @@ exports.getProfile = async (req, res) => {
       res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   };
+
+
+  
+exports.updateProfile = async (req, res) => {
+    try {
+      const { name, photo, bio, phone, email, currentPassword, newPassword, confirmPassword } = req.body;
+  
+      // Check if email is valid
+      if (!email.includes('@')) {
+        return res.status(400).json({ message: 'Invalid email address' });
+      }
+  
+      const user = await User.findById(req.user.id);
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Update profile information
+      user.name = name || user.name;
+      user.photo = photo || user.photo;
+      user.bio = bio || user.bio;
+      user.phone = phone || user.phone;
+      user.email = email || user.email;
+  
+      // Change password if provided
+      if (currentPassword && newPassword && confirmPassword) {
+        //if the current password matches the stored password
+        const isMatch = await comparePassword(currentPassword, user.password);
+        if (!isMatch) {
+          return res.status(401).json({ message: 'Current password is incorrect as stored in Database' });
+        }
+  
+        //if the new password and confirm password match
+        if (newPassword !== confirmPassword) {
+          return res.status(400).json({ message: 'New password and confirm password do not match' });
+        }
+        //if the newPassword matches with oldPassword
+        if (newPassword == currentPassword) {
+          return res.status(400).json({ message: 'New password cannot be the old password. Please choose a new Password' });
+        }
+  
+        // Hash the new password and update the user's password
+        user.password = await hashPassword(newPassword);
+      }
+      const message = "User Details Updated Successfully!"
+  
+      await user.save();
+      res.json(message);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  };
+  
