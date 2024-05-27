@@ -1,5 +1,5 @@
 const User = require('../models/user');
-const { hashPassword } = require('../utils/passwordUtils');
+const { hashPassword,comparePassword  } = require('../utils/passwordUtils');
 const { generateToken } = require('../utils/jwtUtils');
 
 exports.register = async (req, res) => {
@@ -38,7 +38,44 @@ exports.register = async (req, res) => {
   }
 };
 
+
+exports.login = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+  
+      // Check if email is valid
+      if (!email.includes('@')) {
+        return res.status(400).json({ message: 'Invalid email address' });
+      }
+  
+      // Find user by email
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+  
+      // Compare passwords
+      const isMatch = await comparePassword(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+
+  
+      // Generate JWT token
+      const token = generateToken({ userId: user._id, role: user.role });
+      const message = 'User logged in successfully';
+  
+      // Return user details along with the token and message
+      res.json({ message, token });
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  };
+
+  
 function isStrongPassword(password) {
-  const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{":;'?/>.<,])(?=.*\w).{8,}$/;
-  return passwordRegex.test(password);
-}
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{":;'?/>.<,])(?=.*\w).{8,}$/;
+    return passwordRegex.test(password);
+  }
+  
+
