@@ -4,8 +4,9 @@ const { connectDB } = require('./config/database');
 require('dotenv').config();
 const passport = require('./config/passport'); 
 const session = require('express-session');
-const authRoutes = require('./routes/auth');
-
+const authRoutes = require('./routes/routes');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
 const app = express();
 
 // Connect to MongoDB
@@ -28,18 +29,21 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Define routes
-app.use('/auth', require('./routes/auth'));
+app.use('/auth', require('./routes/routes'));
 
 // Define your API routes here
 app.use('/api', authRoutes);
 
-// Routes
 app.use('/api/auth', authRoutes);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Default route for testing
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
+
+
 
 // Error handling middleware
 app.use(function(err, req, res, next) {
@@ -47,7 +51,7 @@ app.use(function(err, req, res, next) {
   res.status(500).json({ message: 'Something broke!' });
 });
 
-// Start the server
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
