@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
+require('dotenv').config(); // Load environment variables from .env file
 
 const connectDB = async () => {
   try {
-    const connection = await mongoose.connect('mongodb+srv://rajdeepnagar08:C6fVS6MqMyFebNMI@cluster0.mxtaouw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
+    const connection = await mongoose.connect(process.env.MONGO_URI,);
     console.log(`MongoDB connected: ${connection.connection.host}`);
   } catch (error) {
     console.error(`Error connecting to MongoDB: ${error.message}`);
