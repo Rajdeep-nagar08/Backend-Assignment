@@ -12,15 +12,22 @@ async (accessToken, refreshToken, profile, done) => {
     let user = await User.findOne({ googleId: profile.id });
 
     if (!user) {
+      // Create a new user if not found
       user = new User({
         googleId: profile.id,
         name: profile.displayName,
         email: profile.emails[0].value,
         photo: profile.photos[0].value,
-        role: 'normal'
+        role: 'normal',
+        accessToken: accessToken  // Save access token
       });
       await user.save();
+    } else {
+      // Update the existing user's access token
+      user.accessToken = accessToken;
+      await user.save();
     }
+
     return done(null, user);
   } catch (error) {
     return done(error, null);

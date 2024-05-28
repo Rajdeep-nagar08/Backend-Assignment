@@ -1,14 +1,14 @@
 const User = require('../models/user');
 /**
  * @swagger
- * /api/auth/getOwnProfile/{email}:
+ * /api/auth/getOwnDetails:
  *   get:
  *     summary: Get Own Profile
- *     description: Retrieve the profile of the authenticated user using email as parameter.
+ *     description: Retrieve the profile of the authenticated user using email as a query parameter.
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: email
  *         required: true
  *         schema:

@@ -1,0 +1,36 @@
+const axios = require('axios');
+
+exports.verifyGoogleToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided or invalid token format' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  try {
+    const response = await axios.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${token}`);
+    const { data } = response;
+
+    // Example of verifying required fields in the Google token info response
+    if (!data.sub || !data.email || !data.email_verified) {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    // Optionally, you can pass some user information to the req object if needed
+    req.user = {
+      googleId: data.sub,
+      email: data.email,
+      verified: data.email_verified
+      // Add other necessary fields as per your application's requirements
+    };
+
+    next();
+  } catch (error) {
+    console.error('Error verifying Google token:', error.response ? error.response.data : error.message);
+    return res.status(403).json({ message: 'Failed to authenticate Google token' });
+  }
+};
