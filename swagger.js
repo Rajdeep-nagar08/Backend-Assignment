@@ -16,7 +16,7 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'http://localhost:5000',
+      url: 'https://backend-assignment-voosh-cv4kwetet-rajdeep-nagar08s-projects.vercel.app',
       description: 'Development server',
     },
   ],
@@ -31,7 +31,7 @@ const swaggerDefinition = {
         type: 'oauth2',
         flows: {
           authorizationCode: {
-            authorizationUrl: 'http://localhost:5000/auth/google',
+            authorizationUrl: 'https://backend-assignment-voosh-cv4kwetet-rajdeep-nagar08s-projects.vercel.app/auth/google',
             tokenUrl: 'https://oauth2.googleapis.com/token',
             scopes: {
               'profile': 'View your basic profile info',
