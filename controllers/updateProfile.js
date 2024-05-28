@@ -94,7 +94,9 @@ exports.updateProfile = async (req, res) => {
         return res.status(400).json({ message: 'Invalid email address' });
       }
   
-      const user = await User.findById(req.user.id);
+      const user = await User.findOne({ email: email });
+
+      console.log('User found:', user); // Log user to check if it's found
   
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
