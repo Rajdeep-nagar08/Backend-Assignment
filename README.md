@@ -57,9 +57,7 @@ You can also use the Swagger UI to interact with the API endpoints:
 1. Start the server with the `npm start` command.
 2. Open your browser and navigate to `http://localhost:5000/api-docs/`.
 
-## API Testing Documentation
-
-The API documentation is available at [https://docs.google.com/document/d/1bIK0D-H7fL9jm-eVCJUPl3Y-m1xoMqziY9OLtiNleDs/edit?usp=sharing)](https://docs.google.com/document/d/1bIK0D-H7fL9jm-eVCJUPl3Y-m1xoMqziY9OLtiNleDs/edit?usp=sharing).
+The SWAGGER API documentation is available at [https://drive.google.com/file/d/1uSitTQp9450m-trQ6joRCv2Zo6kF0cCI/view?usp=sharing).
 
 
 
