@@ -1,5 +1,4 @@
 const User = require('../models/user');
-
 /**
  * @swagger
  * /api/auth/getOwnProfile/{email}:
@@ -21,7 +20,40 @@ const User = require('../models/user');
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/User'
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   description: User ID
+ *                   example: 60bcdf2ae2c67b001c34a5c1
+ *                 name:
+ *                   type: string
+ *                   description: User's name
+ *                   example: John Doe
+ *                 email:
+ *                   type: string
+ *                   description: User's email address
+ *                   example: user@example.com
+ *                 photo:
+ *                   type: string
+ *                   description: URL of user's profile photo
+ *                   example: https://example.com/profile.jpg
+ *                 bio:
+ *                   type: string
+ *                   description: User's biography
+ *                   example: Software Developer
+ *                 phone:
+ *                   type: string
+ *                   description: User's phone number
+ *                   example: +1234567890
+ *                 isPublic:
+ *                   type: boolean
+ *                   description: Indicates if user's profile is public
+ *                   example: true
+ *                 role:
+ *                   type: string
+ *                   description: User's role
+ *                   example: normal
  *       401:
  *         description: Unauthorized (user not authenticated)
  *         content:
@@ -45,6 +77,7 @@ const User = require('../models/user');
  *                   example: Internal server error
  *                   description: Error message
  */
+
 
 exports.getOwnDetails = async (req, res) => {
   try {
