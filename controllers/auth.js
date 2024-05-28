@@ -108,49 +108,46 @@ exports.logout = async (req, res) => {
 
 
   // Get the profile of the requesting user or all profiles based on role
-exports.getProfile = async (req, res) => {
-    try {
+// Get the profile of the requesting user or all profiles based on role
+exports.getProfiles = async (req, res) => {
+  try {
+    const { email } = req.body;
 
-        const { email } = req.body;
-
-        if (!email) {
-            return res.status(400).json({ message: 'Email is required' });
-          }
-      
-
-      // Check if email is valid
-      if (!email.includes('@')) {
-        return res.status(400).json({ message: 'Invalid email address' });
-      }
-  
-      // Find user by email
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-      }
-
-  
-      // If the user is an admin, fetch all user profiles
-      if (user.role === 'admin') {
-        const users = await User.find();
-        const usersWithoutPasswords = users.map(user => {
-          const { password, ...userWithoutPassword } = user.toObject();
-          return userWithoutPassword;
-        });
-        res.json({ message: 'All user profiles fetched successfully', users: usersWithoutPasswords });
-      } else {
-        // For normal users, fetch only public profiles
-        const users = await User.find({ isPublic: true });
-        const usersWithoutPasswords = users.map(user => {
-          const { password, ...userWithoutPassword } = user.toObject();
-          return userWithoutPassword;
-        });
-        res.json({ message: 'Public user profiles fetched successfully', users: usersWithoutPasswords });
-      }
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
     }
-  };
+
+    // Check if email is valid
+    if (!email.includes('@')) {
+      return res.status(400).json({ message: 'Invalid email address' });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    let users;
+
+    if (user.role === 'admin') {
+      // Fetch all user profiles if the requester is an admin
+      users = await User.find({ _id: { $ne: user._id } }); // Exclude the requesting user
+    } else {
+      // Fetch only public profiles for normal users
+      users = await User.find({ isPublic: true, _id: { $ne: user._id } }); // Exclude the requesting user
+    }
+
+    const usersWithoutPasswords = users.map(user => {
+      const { password, ...userWithoutPassword } = user.toObject();
+      return userWithoutPassword;
+    });
+
+    res.json({ message: 'Profiles fetched successfully', users: usersWithoutPasswords });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
 
 
   
@@ -206,70 +203,102 @@ exports.updateProfile = async (req, res) => {
   };
   
 
-  
-exports.getPublicProfiles = async (req, res) => {
+  exports.updateProfileVisibility = async (req, res) => {
     try {
+      const { email } = req.body;
+  
+      // Check if email is valid
+      if (!email.includes('@')) {
+        return res.status(400).json({ message: 'Invalid email address' });
+      }
+  
+      // Find the user by email
+      const user = await User.findOne({ email });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Update the isPublic field
+      if(user.isPublic==true){
+        user.isPublic=false;
+      }
+      else
+      user.isPublic=true;
+
+      await user.save();
+  
+      res.json({ message: 'Profile visibility updated successfully', isPublic: user.isPublic });
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+  };
+
+  
+// exports.getPublicProfiles = async (req, res) => {
+//     try {
        
-        const { email } = req.body;
+//         const { email } = req.body;
 
-        if (!email) {
-            return res.status(400).json({ message: 'Email is required' });
-          }
+//         if (!email) {
+//             return res.status(400).json({ message: 'Email is required' });
+//           }
       
-      // Find the user based on the provided email
-      const user = await User.findOne({ email: email });
+//       // Find the user based on the provided email
+//       const user = await User.findOne({ email: email });
   
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
+//       if (!user) {
+//         return res.status(404).json({ message: 'User not found' });
+//       }
   
-      console.log(user.role)
-      // Check users role
-      if (user.role !='normal' && user.role!='admin') {
-        return res.status(403).json({ message: 'Access denied' });
-      }
+//       console.log(user.role)
+//       // Check users role
+//       if (user.role !='normal' && user.role!='admin') {
+//         return res.status(403).json({ message: 'Access denied' });
+//       }
   
-      // Fetch public user profiles where role is 'user'
-      const profiles = await User.find({
-        role: 'normal',
-        isPublic: true
-      }).select('-password'); // Exclude the password field from the result
+//       // Fetch public user profiles where role is 'user'
+//       const profiles = await User.find({
+//         role: 'normal',
+//         isPublic: true
+//       }).select('-password'); // Exclude the password field from the result
   
-      res.json({ profiles });
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+//       res.json({ profiles });
+//     } catch (error) {
+//       res.status(500).json({ message: 'Internal server error' });
+//     }
+//   };
   
 
   
-//getAllProfiles
-exports.getPrivateProfiles = async (req, res) => {
-    try {
-        const { email } = req.body;
+// //getAllProfiles
+// exports.getPrivateProfiles = async (req, res) => {
+//     try {
+//         const { email } = req.body;
 
-        if (!email) {
-            return res.status(400).json({ message: 'Email is required' });
-          }
+//         if (!email) {
+//             return res.status(400).json({ message: 'Email is required' });
+//           }
   
-      // Find the user based on the provided email
-      const user = await User.findOne({ email: email });
+//       // Find the user based on the provided email
+//       const user = await User.findOne({ email: email });
   
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
+//       if (!user) {
+//         return res.status(404).json({ message: 'User not found' });
+//       }
   
-      // Check if the user's role is 'admin'
-      if (user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied' });
-      }
+//       // Check if the user's role is 'admin'
+//       if (user.role !== 'admin') {
+//         return res.status(403).json({ message: 'Access denied' });
+//       }
   
-      // If the user is an admin, fetch all user profiles
-      const profiles = await User.find({}).select('-password'); // Exclude the password field from the result
+//       // If the user is an admin, fetch all user profiles
+//       const profiles = await User.find({}).select('-password'); // Exclude the password field from the result
   
-      res.json({ profiles });
-    } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+//       res.json({ profiles });
+//     } catch (error) {
+//       res.status(500).json({ message: 'Internal server error' });
+//     }
+//   };
   
+

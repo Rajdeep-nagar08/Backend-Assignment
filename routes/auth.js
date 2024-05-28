@@ -9,10 +9,11 @@ const router = express.Router();
 router.post('/register', auth.register);
 router.post('/login', auth.login);
 router.post('/logout', authenticateToken, auth.logout); 
-router.get('/profile', authenticateToken, auth.getProfile);
+router.get('/getProfiles', authenticateToken, auth.getProfiles);
 router.put('/updateProfile', authenticateToken, auth.updateProfile);
-router.get('/getPublicProfiles', authenticateToken,auth.getPublicProfiles);
-router.get('/getPrivateProfiles', authenticateToken,auth.getPrivateProfiles);
+// router.get('/getPublicProfiles', authenticateToken,auth.getPublicProfiles);
+// router.get('/getPrivateProfiles', authenticateToken,auth.getPrivateProfiles);
+
 
 
 // Google OAuth route
@@ -22,5 +23,7 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
   // Redirect to home page after successful authentication
   res.redirect('https://voosh.ai/');
 });
+
+router.put('/updateProfileVisibility', authenticateToken, auth.updateProfileVisibility);
 
 module.exports = router;
