@@ -18,7 +18,6 @@
 
 ![Swagger](https://drive.google.com/uc?id=15n_2pwRg2dPKD-2G4WcuDkaX9IqASjwZ)
 
-## Available Authorizations
 ![Alt Text](https://drive.google.com/uc?id=1nakliGxAbDTCfYJL246_7ytxwZtYpJGo)
 
 ## Installation
