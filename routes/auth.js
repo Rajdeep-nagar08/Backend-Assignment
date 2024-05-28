@@ -2,6 +2,7 @@
 const express = require('express');
 const auth = require('../controllers/auth');
 const { authenticateToken } = require('../middlewares/auth');
+const passport = require('../config/passport');
 
 const router = express.Router();
 
@@ -13,5 +14,13 @@ router.put('/updateProfile', authenticateToken, auth.updateProfile);
 router.get('/getPublicProfiles', authenticateToken,auth.getPublicProfiles);
 router.get('/getPrivateProfiles', authenticateToken,auth.getPrivateProfiles);
 
+
+// Google OAuth route
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
+  // Redirect to home page after successful authentication
+  res.redirect('https://voosh.ai/');
+});
 
 module.exports = router;
